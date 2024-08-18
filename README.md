@@ -11,6 +11,8 @@ This is a simple yet powerful tool to help you manage your GitHub followers effi
 
 ## Prerequisites
 
+### Dependencies
+
 Before using Github Follow Manager, ensure you have the following installed:
 
 - Bash: The script is written for Bash and should be run in a Unix-like environment.
@@ -29,21 +31,44 @@ On RedHat/CentOS:
 sudo yum install curl jq
 ```
 
+### Personal Access Token
+
+Before using the script, you need to set your GitHub username and personal access token. You can generate a personal access token from your GitHub account settings under "Developer settings" -> "Personal access tokens". The token should have the `read:user` and `user:follow` scope enabled.
+
 ## Installation
 
-To install [Github Follow Manager](https://github.com/mldxo/github-follow-manager), clone the repository and give permissions to the script:
+To install [Github Follow Manager](https://github.com/mldxo/github-follow-manager), simply run the following command in your terminal:
 
 ```bash
-git clone https://github.com/yourusername/github-follow-manager.git
-cd github-follow-manager
-chmod +x follow_manager.sh
+curl -s https://raw.githubusercontent.com/mldxo/github-follow-manager/main/install.sh | sudo bash
+```
+
+## Uninstallation
+
+To uninstall [Github Follow Manager](https://github.com/mldxo/github-follow-manager), simply run the following command in your terminal:
+
+```bash
+curl -s https://raw.githubusercontent.com/mldxo/github-follow-manager/main/uninstall.sh | sudo bash
 ```
 
 ## Usage
 
-1. Set Your GitHub Username and Token
+The script provides several arguments to manage your GitHub followers. You can run the script by simply running:
 
-Before using the script, you need to set your GitHub username and personal access token. You can generate a personal access token from your GitHub account settings under "Developer settings" -> "Personal access tokens". The token should have the `read:user` and `user:follow` scope enabled.
+```bash
+github-follow-manager [argument]
+```
+
+Arguments:
+- `follow-back`: Follow back all users who are following you.
+- `unfollow-non-followers`: Unfollow users who are not following you back.
+- `list-followers`: List all users who are following you.
+- `list-following`: List all users you are following.
+- `list-not-following-back`: List all users who are not following you back.
+
+## Manual usage
+
+1. Provide your GitHub username and personal access token
 
 On the first run, you will be prompted to enter your GitHub username and personal access token. The script will save this information in a configuration file for future use.
 
@@ -75,14 +100,6 @@ To check your current list of followers and following, you can use the following
 ./follow_manager.sh list-followers
 ./follow_manager.sh list-following
 ./follow_manager.sh list-not-following-back
-```
-
-## Installation as a Global Command
-
-If you want to use Github Follow Manager as a global command, run the following command:
-
-```bash
-sudo bash ./install.sh
 ```
 
 ## License
