@@ -48,7 +48,7 @@ curl -s https://raw.githubusercontent.com/mldxo/github-follow-manager/main/insta
 To uninstall [Github Follow Manager](https://github.com/mldxo/github-follow-manager), simply run the following command in your terminal:
 
 ```bash
-curl -s https://raw.githubusercontent.com/mldxo/github-follow-manager/main/uninstall.sh | sudo bash
+curl -s https://raw.githubusercontent.com/mldxo/github-follow-manager/main/uninstall.sh | sudo bash -s -- -y
 ```
 
 ## Usage
