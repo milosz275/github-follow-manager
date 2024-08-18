@@ -1,5 +1,7 @@
 # Github Follow Manager
 
+[![Deploy static content to Pages](https://github.com/mldxo/github-follow-manager/actions/workflows/deploy.yml/badge.svg)](https://github.com/mldxo/github-follow-manager/actions/workflows/deploy.yml)
+
 This is a simple yet powerful tool to help you manage your GitHub followers efficiently. With [Github Follow Manager](https://github.com/mldxo/github-follow-manager), you can easily follow back all your followers with a single command and unfollow users who aren't following you back. This tool is perfect for maintaining a balanced and reciprocal following list on GitHub.
 
 ## Features
