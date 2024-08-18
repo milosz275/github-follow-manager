@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Follow Manager
+# GitHub Follow Manager
 # A simple script to manage your GitHub followers and following list.
+
+CONFIG_DIR="$HOME/.github-follow-manager"
+ENV_FILE="$CONFIG_DIR/.env"
 
 if ! command -v jq &> /dev/null; then
     echo "jq is required to run this script. Please install jq first."
@@ -15,15 +18,21 @@ if ! command -v curl &> /dev/null; then
     exit 1
 fi
 
-if [ -f .env ]; then
-    export $(cat .env | xargs)
+if [ ! -f "$ENV_FILE" ]; then
+    echo ".env file not found! Creating one..."
+    mkdir -p "$CONFIG_DIR"
+    read -p "Enter your GitHub username: " GITHUB_USER
+    read -sp "Enter your GitHub token: " GITHUB_TOKEN
+    echo
+    echo "GITHUB_USER=$GITHUB_USER" > "$ENV_FILE"
+    echo "GITHUB_TOKEN=$GITHUB_TOKEN" >> "$ENV_FILE"
+    echo ".env file created with your GitHub credentials."
 else
-    echo ".env file not found! Please create a .env file with GITHUB_USER and GITHUB_TOKEN."
-    exit 1
+    export $(cat "$ENV_FILE" | xargs)
 fi
 
 if [ -z "$GITHUB_USER" ] || [ -z "$GITHUB_TOKEN" ]; then
-    echo "GitHub username or token is not set. Please check your .env file."
+    echo "GitHub username or token is not set correctly. Please check your .env file in $CONFIG_DIR."
     exit 1
 fi
 

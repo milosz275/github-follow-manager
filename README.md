@@ -17,8 +17,6 @@ Before using Github Follow Manager, ensure you have the following installed:
 - curl: Used for making HTTP requests to the GitHub API.
 - jq: A lightweight and flexible command-line JSON processor, used for parsing API responses.
 
-## Prerequisites
-
 Install `curl` and `jq` on your system using the following commands:
 
 On Ubuntu/Debian:
@@ -47,11 +45,10 @@ chmod +x follow_manager.sh
 
 Before using the script, you need to set your GitHub username and personal access token. You can generate a personal access token from your GitHub account settings under "Developer settings" -> "Personal access tokens". The token should have the `read:user` and `user:follow` scope enabled.
 
-Create .env file in the project directory and add the following lines:
-    
+On the first run, you will be prompted to enter your GitHub username and personal access token. The script will save this information in a configuration file for future use.
+
 ```bash
-GITHUB_USERNAME=your_github_username
-GITHUB_TOKEN=your_github_token
+./follow_manager.sh
 ```
 
 2. Follow Back All Your Followers
@@ -78,6 +75,14 @@ To check your current list of followers and following, you can use the following
 ./follow_manager.sh list-followers
 ./follow_manager.sh list-following
 ./follow_manager.sh list-not-following-back
+```
+
+## Installation as a Global Command
+
+If you want to use Github Follow Manager as a global command, run the following command:
+
+```bash
+sudo bash ./install.sh
 ```
 
 ## License
