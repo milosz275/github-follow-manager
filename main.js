@@ -1,1 +1,3 @@
-console.log("GitHub Follow Manager site loaded.");
+console.log(
+    "Welcome to the Github Follow Manager"
+)
