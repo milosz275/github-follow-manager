@@ -1,6 +1,7 @@
 {
   "name": "github-follow-manager",
   "version": "1.0.0",
+  "type": "module",
   "description": "This is a simple yet powerful tool to help you manage your GitHub followers efficiently. With [Github Follow Manager](https://github.com/mldxo/github-follow-manager), you can easily follow back all your followers with a single command and unfollow users who aren't following you back. This tool is perfect for maintaining a balanced and reciprocal following list on GitHub.",
   "main": "src/main.js",
   "scripts": {
