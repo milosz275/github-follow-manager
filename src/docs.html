@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Follow Manager Documentation</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="favicon.ico" />
+</head>
+<body>
+  <header>
+    <h1>GitHub Follow Manager Documentation</h1>
+  </header>
+  <main>
+    <a href="/">Back to Home</a>
+    <section>
+      <h2>Table of Contents</h2>
+      <ul>
+        <li><a href="#project-overview">Project Overview</a></li>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#uninstallation">Uninstallation</a></li>
+        <li><a href="#usage">Usage</a></li>
+        <li><a href="#license">License</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Project Overview</h2>
+      <p>This is a simple yet powerful tool to help you manage your GitHub followers efficiently. With <a href="https://github.com/mldxo/github-follow-manager">Github Follow Manager</a>, you can easily follow back all your followers with a single command and unfollow users who aren't following you back. This tool is perfect for maintaining a balanced and reciprocal following list on GitHub.</p>
+    </section>
+    
+    <section>
+      <h2>Installation</h2>
+      <pre><code>
+#!/bin/bash
+set -e
+INSTALL_DIR="/usr/local/bin"
+SCRIPT_NAME="follow_manager.sh"
+UTILITY_NAME="github-follow-manager"
+CONFIG_DIR="$HOME/.github-follow-manager"
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root or with sudo"
+    exit 1
+fi
+echo "Downloading $UTILITY_NAME..."
+curl -L https://github.com/mldxo/github-follow-manager/raw/main/$SCRIPT_NAME -o $INSTALL_DIR/$UTILITY_NAME
+echo "Making $UTILITY_NAME executable..."
+chmod +x $INSTALL_DIR/$UTILITY_NAME
+echo "$UTILITY_NAME has been installed in $INSTALL_DIR"
+echo "Please run '$UTILITY_NAME' to complete the setup."
+      </code></pre>
+    </section>
+    
+    <section>
+      <h2>Uninstallation</h2>
+      <pre><code>
+#!/bin/bash
+INSTALL_DIR="/usr/local/bin"
+UTILITY_NAME="github-follow-manager"
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root or with sudo"
+    exit 1
+fi
+if [[ "$1" != "-y" ]]; then
+    echo "Are you sure you want to uninstall $UTILITY_NAME? (y/n)"
+    read -r confirm
+    if [ "$confirm" != "y" ]; then
+        echo "Uninstallation aborted."
+        exit 0
+    fi
+fi
+if [ -f "$INSTALL_DIR/$UTILITY_NAME" ]; then
+    echo "Removing $INSTALL_DIR/$UTILITY_NAME..."
+    sudo rm -f "$INSTALL_DIR/$UTILITY_NAME"
+else
+    echo "$UTILITY_NAME not found in $INSTALL_DIR."
+    exit 1
+fi
+echo "$UTILITY_NAME has been uninstalled successfully."
+exit 0
+      </code></pre>
+    </section>
+    
+    <section>
+      <h2>Usage</h2>
+      <pre><code>
+./follow_manager.sh unfollow-non-followers
+
+# Check Current Followers and Following List
+./follow_manager.sh list-followers
+./follow_manager.sh list-following
+./follow_manager.sh list-not-following-back
+      </code></pre>
+    </section>
+    
+    <section>
+      <h2>License</h2>
+      <p>
+        <a href="https://github.com/mldxo/github-follow-manager/blob/main/LICENSE">
+          MIT License
+        </a>
+      </p>
+    </section>
+  </main>
+</body>
+</html>
