@@ -106,6 +106,10 @@ To check your current list of followers and following, you can use the following
 ./follow_manager.sh list-not-following-back
 ```
 
+## Acknowledgements
+
+- [Bannerbear](https://www.bannerbear.com/) for generating the logo image.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
