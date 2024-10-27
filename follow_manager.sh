@@ -170,7 +170,7 @@ unfollow_non_followers() {
         echo "Select a user to unfollow or choose 0 to abort:"
         select user in "${non_followers[@]}"; do
             if [ -n "$user" ]; then
-                echo "Unfollowing \e]8;;$GITHUB_URL/$user\a$user\e]8;;\a..."
+                echo -e "Unfollowing \e]8;;$GITHUB_URL/$user\a$user\e]8;;\a..."
                 curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X DELETE "$GITHUB_API_URL/user/following/$user" > /dev/null
                 break
             elif [ "$REPLY" -eq 0 ]; then
