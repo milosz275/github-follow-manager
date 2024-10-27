@@ -7,7 +7,8 @@ CONFIG_DIR="$HOME/.github-follow-manager"
 ENV_FILE="$CONFIG_DIR/.env"
 GITHUB_API_URL="https://api.github.com"
 GITHUB_URL="https://github.com"
-MAX_ENTRIES=20
+PAGINATION=30
+MAX_ENTRIES=100000
 
 get_current_username() {
     curl -s -u "anonymous:$GITHUB_TOKEN" "$GITHUB_API_URL/user" | jq -r '.login'
@@ -76,9 +77,33 @@ else
     check_current_username
 fi
 
-follow_back() {
-    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
-    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
+menu_follow() { # uses argument as username if provided, otherwise asks for input
+    username=""
+    if [ -z "$1" ]; then
+        echo "Enter the username you want to follow:"
+        read -r username
+    else
+        username=$1
+    fi
+    echo -e "Following \e]8;;$GITHUB_URL/$username\a$username\e]8;;\a..."
+    curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X PUT "$GITHUB_API_URL/user/following/$username" > /dev/null
+}
+
+menu_unfollow() { # uses argument as username if provided, otherwise asks for input
+    username=""
+    if [ -z "$1" ]; then
+        echo "Enter the username you want to unfollow:"
+        read -r username
+    else
+        username=$1
+    fi
+    echo -e "Unfollowing \e]8;;$GITHUB_URL/$username\a$username\e]8;;\a..."
+    curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X DELETE "$GITHUB_API_URL/user/following/$username" > /dev/null
+}
+
+menu_follow_back() { # aks for confirmation before following back all followers, uses -y flag to skip confirmation
+    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
+    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     if [ -z "$followers" ]; then
         echo "You don't have any followers to follow back."
         exit 1
@@ -95,7 +120,7 @@ follow_back() {
         return
     fi
 
-    if [ ${#not_following_back[@]} -gt $MAX_ENTRIES ]; then
+    if [ ${#not_following_back[@]} -gt $PAGINATION ]; then
         echo "You have too many followers to follow back to show them all."
     else
         echo "Users not followed back:"
@@ -104,10 +129,15 @@ follow_back() {
         done
     fi
 
-    echo "Do you want to follow back all followers? [y/n]"
-    read -r confirm
+    confirm=""
+    if [ "$1" == "-y" ]; then
+        confirm="y"
+    else
+        echo "Do you want to follow back all followers? [y/n]"
+        read -r confirm
+    fi
     if [ "$confirm" != "y" ]; then
-        if [ ${#not_following_back[@]} -gt $MAX_ENTRIES ]; then
+        if [ ${#not_following_back[@]} -gt $PAGINATION ]; then
             echo "You have too many followers to follow back manually."
             return
         fi
@@ -135,9 +165,9 @@ follow_back() {
     echo "All followers have been followed back."
 }
 
-unfollow_non_followers() {
-    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
-    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
+menu_unfollow_non_followers() { # asks for confirmation before unfollowing users who are not following back, uses -y flag to skip confirmation
+    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
+    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     
     non_followers=()
     for user in $following; do
@@ -151,7 +181,7 @@ unfollow_non_followers() {
         return
     fi
 
-    if [ ${#non_followers[@]} -gt $MAX_ENTRIES ]; then
+    if [ ${#non_followers[@]} -gt $PAGINATION ]; then
         echo "You have too many users to unfollow to show them all."
     else
         echo "Users who are not following you back:"
@@ -160,10 +190,15 @@ unfollow_non_followers() {
         done
     fi
     
-    echo "Do you want to unfollow all users who are not following you back? [y/n]"
-    read -r confirm
+    confirm=""
+    if [ "$1" == "-y" ]; then
+        confirm="y"
+    else
+        echo "Do you want to unfollow all users who are not following you back? [y/n]"
+        read -r confirm
+    fi
     if [ "$confirm" != "y" ]; then
-        if [ ${#non_followers[@]} -gt $MAX_ENTRIES ]; then
+        if [ ${#non_followers[@]} -gt $PAGINATION ]; then
             echo "You have too many users to unfollow manually."
             return
         fi
@@ -191,14 +226,17 @@ unfollow_non_followers() {
     echo "Unfollowed users who are not following you back."
 }
 
-paginate() {
+paginate() { # takes an array of users and paginates them
+    if [ "$#" -eq 0 ]; then
+        echo "Invalid usage of arguments in paginate function."
+    fi
     local users=("$@")
     local total=${#users[@]}
-    local pages=$(( (total + MAX_ENTRIES - 1) / MAX_ENTRIES ))
+    local pages=$(( (total + PAGINATION - 1) / PAGINATION ))
 
     for ((page=0; page<pages; page++)); do
-        start=$((page * MAX_ENTRIES))
-        end=$((start + MAX_ENTRIES))
+        start=$((page * PAGINATION))
+        end=$((start + PAGINATION))
         if [ $end -gt $total ]; then
             end=$total
         fi
@@ -215,24 +253,33 @@ paginate() {
     done
 }
 
-list_followers() {
+menu_list_followers() { # lists all followers and paginates them
+    if [ "$#" -eq 0 ]; then
+        echo "Invalid usage of arguments in list_followers function."
+    fi
     echo "Followers:"
-    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
+    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     IFS=$'\n' read -rd '' -a followers_array <<<"$followers"
     paginate "${followers_array[@]}"
 }
 
-list_following() {
+menu_list_following() { # lists all following users and paginates them
+    if [ "$#" -eq 0 ]; then
+        echo "Invalid usage of arguments in list_following function."
+    fi
     echo "Following:"
-    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
+    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     IFS=$'\n' read -rd '' -a following_array <<<"$following"
     paginate "${following_array[@]}"
 }
 
-list_not_following_back() {
+menu_list_not_following_back() { # lists users who are not following back and paginates them
+    if [ "$#" -eq 0 ]; then
+        echo "Invalid usage of arguments in list_not_following_back function."
+    fi
     echo "Users who are not following you back:"
-    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
-    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
+    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
+    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     IFS=$'\n' read -rd '' -a following_array <<<"$following"
     IFS=$'\n' read -rd '' -a followers_array <<<"$followers"
     not_following_back=()
@@ -244,10 +291,13 @@ list_not_following_back() {
     paginate "${not_following_back[@]}"
 }
 
-list_not_followed_back() {
+menu_list_not_followed_back() { # lists users who you are not following back and paginates them
+    if [ "$#" -eq 0 ]; then
+        echo "Invalid usage of arguments in list_not_followed_back function."
+    fi
     echo "Users you are not following back:"
-    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
-    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
+    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
+    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     IFS=$'\n' read -rd '' -a following_array <<<"$following"
     IFS=$'\n' read -rd '' -a followers_array <<<"$followers"
     not_followed_back=()
@@ -259,9 +309,17 @@ list_not_followed_back() {
     paginate "${not_followed_back[@]}"
 }
 
-usage() {
+display_current_follower_count() { # displays the current follower count
+    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
+    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
+    echo "You have $(echo "$followers" | wc -l) followers and you are following $(echo "$following" | wc -l) users."
+}
+
+usage() { # displays usage information
     echo "Usage: $0 <command>"
     echo "Commands:"
+    echo "  follow <username>: Follow a user"
+    echo "  unfollow <username>: Unfollow a user"
     echo "  follow-back: Follow back all followers"
     echo "  unfollow-non-followers: Unfollow users who are not following you back"
     echo "  list-followers: List all followers"
@@ -270,19 +328,22 @@ usage() {
     echo "  list-not-followed-back: List users who you are not following back"
 }
 
-display_menu() {
+display_menu() { # displays the main menu
     echo "Select an option:"
     echo "0) Abort"
-    echo "1) Follow back"
-    echo "2) Unfollow non-followers"
-    echo "3) List followers"
-    echo "4) List following"
-    echo "5) List not-following back"
-    echo "6) List not-followed back"
+    echo "1) Follow a user"
+    echo "2) Unfollow a user"
+    echo "3) Follow back all or choose a follower"
+    echo "4) Unfollow all non-followers or choose a user"
+    echo "5) List followers"
+    echo "6) List following"
+    echo "7) List not-following back"
+    echo "8) List not-followed back"
 }
 
 if [ $# -eq 0 ]; then
     while true; do
+        display_current_follower_count
         display_menu
         read -p "Enter your choice: " choice
         case $choice in
@@ -291,22 +352,28 @@ if [ $# -eq 0 ]; then
                 exit 0
                 ;;
             1)
-                follow_back
+                menu_follow
                 ;;
             2)
-                unfollow_non_followers
+                menu_unfollow
                 ;;
             3)
-                list_followers
+                menu_follow_back
                 ;;
             4)
-                list_following
+                menu_unfollow_non_followers
                 ;;
             5)
-                list_not_following_back
+                menu_list_followers
                 ;;
             6)
-                list_not_followed_back
+                menu_list_following
+                ;;
+            7)
+                menu_list_not_following_back
+                ;;
+            8)
+                menu_list_not_followed_back
                 ;;
             *)
                 echo "Invalid option. Please try again."
@@ -316,23 +383,29 @@ if [ $# -eq 0 ]; then
 fi
 
 case "$1" in
+    follow)
+        menu_follow "${@:2}"
+        ;;
+    unfollow)
+        menu_unfollow "${@:2}"
+        ;;
     follow-back)
-        follow_back
+        menu_follow_back "${@:2}"
         ;;
     unfollow-non-followers)
-        unfollow_non_followers
+        menu_unfollow_non_followers "${@:2}"
         ;;
     list-followers)
-        list_followers
+        menu_list_followers "${@:2}"
         ;;
     list-following)
-        list_following
+        menu_list_following "${@:2}"
         ;;
     list-not-following-back)
-        list_not_following_back
+        menu_list_not_following_back "${@:2}"
         ;;
     list-not-followed-back)
-        list_not_followed_back
+        menu_list_not_followed_back "${@:2}"
         ;;
     *)
         usage
