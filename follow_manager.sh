@@ -167,6 +167,12 @@ list_not_followed_back() {
     done
 }
 
+update_username() {
+    read -p "Enter your GitHub username: " GITHUB_USER
+    echo "GITHUB_USER=$GITHUB_USER" > "$ENV_FILE"
+    echo "GitHub username updated successfully."
+}
+
 usage() {
     echo "Usage: $0 <command>"
     echo "Commands:"
@@ -176,6 +182,7 @@ usage() {
     echo "  list-following: List all following users"
     echo "  list-not-following-back: List users who are not following you back"
     echo "  list-not-followed-back: List users who you are not following back"
+    echo "  update-username: Update your GitHub username"
 }
 
 display_menu() {
@@ -185,7 +192,9 @@ display_menu() {
     echo "2) Unfollow non-followers"
     echo "3) List followers"
     echo "4) List following"
-    echo "5) List non-followed back"
+    echo "5) List not-following back"
+    echo "6) List not-followed back"
+    echo "7) Update username"
 }
 
 if [ $# -eq 0 ]; then
@@ -210,7 +219,13 @@ if [ $# -eq 0 ]; then
                 list_following
                 ;;
             5)
+                list_not_following_back
+                ;;
+            6)
                 list_not_followed_back
+                ;;
+            7)
+                update_username
                 ;;
             *)
                 echo "Invalid option. Please try again."
@@ -237,6 +252,9 @@ case "$1" in
         ;;
     list-not-followed-back)
         list_not_followed_back
+        ;;
+    update-username)
+        update_username
         ;;
     *)
         usage
