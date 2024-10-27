@@ -5,6 +5,7 @@
 
 CONFIG_DIR="$HOME/.github-follow-manager"
 ENV_FILE="$CONFIG_DIR/.env"
+HISTORY_FILE="$CONFIG_DIR/.history"
 GITHUB_API_URL="https://api.github.com"
 GITHUB_URL="https://github.com"
 PAGINATION=30
@@ -87,6 +88,7 @@ menu_follow() { # uses argument as username if provided, otherwise asks for inpu
     fi
     echo -e "Following \e]8;;$GITHUB_URL/$username\a$username\e]8;;\a..."
     curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X PUT "$GITHUB_API_URL/user/following/$username" > /dev/null
+    echo "$GITHUB_USER followed $username at $(date)" >> "$HISTORY_FILE"
 }
 
 menu_unfollow() { # uses argument as username if provided, otherwise asks for input
@@ -99,6 +101,7 @@ menu_unfollow() { # uses argument as username if provided, otherwise asks for in
     fi
     echo -e "Unfollowing \e]8;;$GITHUB_URL/$username\a$username\e]8;;\a..."
     curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X DELETE "$GITHUB_API_URL/user/following/$username" > /dev/null
+    echo "$GITHUB_USER unfollowed $username at $(date)" >> "$HISTORY_FILE"
 }
 
 menu_follow_back() { # aks for confirmation before following back all followers, uses -y flag to skip confirmation
@@ -146,6 +149,7 @@ menu_follow_back() { # aks for confirmation before following back all followers,
             if [ -n "$user" ]; then
                 echo -e "Following \e]8;;$GITHUB_URL/$user\a$user\e]8;;\a..."
                 curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X PUT "$GITHUB_API_URL/user/following/$user" > /dev/null
+                echo "$GITHUB_USER followed $user at $(date)" >> "$HISTORY_FILE"
                 break
             elif [ "$REPLY" -eq 0 ]; then
                 echo "Aborting..."
@@ -161,6 +165,7 @@ menu_follow_back() { # aks for confirmation before following back all followers,
     for user in $followers; do
         echo "Following $user..."
         curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X PUT "$GITHUB_API_URL/user/following/$user" > /dev/null
+        echo "$GITHUB_USER followed $user at $(date)" >> "$HISTORY_FILE"
     done
     echo "All followers have been followed back."
 }
@@ -207,6 +212,7 @@ menu_unfollow_non_followers() { # asks for confirmation before unfollowing users
             if [ -n "$user" ]; then
                 echo -e "Unfollowing \e]8;;$GITHUB_URL/$user\a$user\e]8;;\a..."
                 curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X DELETE "$GITHUB_API_URL/user/following/$user" > /dev/null
+                echo "$GITHUB_USER unfollowed $user at $(date)" >> "$HISTORY_FILE"
                 break
             elif [ "$REPLY" -eq 0 ]; then
                 echo "Aborting..."
@@ -222,6 +228,7 @@ menu_unfollow_non_followers() { # asks for confirmation before unfollowing users
     for user in "${non_followers[@]}"; do
         echo "Unfollowing $user..."
         curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" -X DELETE "$GITHUB_API_URL/user/following/$user" > /dev/null
+        echo "$GITHUB_USER unfollowed $user at $(date)" >> "$HISTORY_FILE"
     done
     echo "Unfollowed users who are not following you back."
 }
