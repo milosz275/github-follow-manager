@@ -1,10 +1,10 @@
 # Github Follow Manager
 
-[![Deploy static content to Pages](https://github.com/mldxo/github-follow-manager/actions/workflows/deploy.yml/badge.svg)](https://github.com/mldxo/github-follow-manager/actions/workflows/deploy.yml)
+[![Deploy static content to Pages](https://github.com/milosz275/github-follow-manager/actions/workflows/deploy.yml/badge.svg)](https://github.com/milosz275/github-follow-manager/actions/workflows/deploy.yml)
 
 ![Logo](assets/github-follow-manager.jpg)
 
-This is a simple yet powerful tool to help you manage your GitHub followers efficiently. With [Github Follow Manager](https://github.com/mldxo/github-follow-manager), you can easily follow back all your followers with a single command and unfollow users who aren't following you back. This tool is perfect for maintaining a balanced and reciprocal following list on GitHub.
+This is a simple utility to help you manage your GitHub followers efficiently. With [Github Follow Manager](https://github.com/milosz275/github-follow-manager), you can easily follow back all your followers with a single command and unfollow users who aren't following you back. The script is written in shell scripting language and uses the GitHub API to interact with your followers and following list.
 
 ## Features
 
@@ -26,11 +26,13 @@ Before using Github Follow Manager, ensure you have the following installed:
 Install `curl` and `jq` on your system using the following commands:
 
 On Ubuntu/Debian:
+
 ```bash
 sudo apt-get install curl jq
 ```
 
 On RedHat/CentOS:
+
 ```bash
 sudo yum install curl jq
 ```
@@ -41,18 +43,21 @@ Before using the script, you need to set your GitHub username and personal acces
 
 ## Installation
 
-To install [Github Follow Manager](https://github.com/mldxo/github-follow-manager), simply run the following command in your terminal:
+> [!NOTE]
+> Default installation directory is `/usr/local/bin`
+
+To install [Github Follow Manager](https://github.com/milosz275/github-follow-manager), simply run the following command in your terminal:
 
 ```bash
-curl -s https://raw.githubusercontent.com/mldxo/github-follow-manager/main/install.sh | sudo bash
+curl -s https://raw.githubusercontent.com/milosz275/github-follow-manager/main/install.sh | sudo bash
 ```
 
 ## Uninstallation
 
-To uninstall [Github Follow Manager](https://github.com/mldxo/github-follow-manager), simply run the following command in your terminal:
+To uninstall [Github Follow Manager](https://github.com/milosz275/github-follow-manager), simply run the following command in your terminal:
 
 ```bash
-curl -s https://raw.githubusercontent.com/mldxo/github-follow-manager/main/uninstall.sh | sudo bash -s -- -y
+curl -s https://raw.githubusercontent.com/milosz275/github-follow-manager/main/uninstall.sh | sudo bash -s -- -y
 ```
 
 ## Usage
@@ -64,47 +69,13 @@ github-follow-manager [argument]
 ```
 
 Arguments:
+
 - `follow-back`: Follow back all users who are following you.
 - `unfollow-non-followers`: Unfollow users who are not following you back.
 - `list-followers`: List all users who are following you.
 - `list-following`: List all users you are following.
 - `list-not-following-back`: List all users who are not following you back.
-
-## Manual usage
-
-1. Provide your GitHub username and personal access token
-
-On the first run, you will be prompted to enter your GitHub username and personal access token. The script will save this information in a configuration file for future use.
-
-```bash
-./follow_manager.sh
-```
-
-2. Follow Back All Your Followers
-
-To follow back all users who are following you, run the following command:
-
-```bash
-./follow_manager.sh follow-back
-```
-
-3. Unfollow Users Who Are Not Following You Back
-
-To unfollow all users who are not following you back, run the following command:
-
-```bash
-./follow_manager.sh unfollow-non-followers
-```
-
-4. Check Current Followers and Following List
-
-To check your current list of followers and following, you can use the following commands:
-
-```bash
-./follow_manager.sh list-followers
-./follow_manager.sh list-following
-./follow_manager.sh list-not-following-back
-```
+- `update-username`: Update your GitHub username in the script.
 
 ## Acknowledgements
 

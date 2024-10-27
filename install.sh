@@ -13,7 +13,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo "Downloading $UTILITY_NAME..."
-curl -L https://github.com/mldxo/github-follow-manager/raw/main/$SCRIPT_NAME -o $INSTALL_DIR/$UTILITY_NAME
+curl -L https://github.com/milosz275/github-follow-manager/raw/main/$SCRIPT_NAME -o $INSTALL_DIR/$UTILITY_NAME
 
 echo "Making $UTILITY_NAME executable..."
 chmod +x $INSTALL_DIR/$UTILITY_NAME
