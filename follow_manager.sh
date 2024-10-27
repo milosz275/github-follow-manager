@@ -7,7 +7,7 @@ CONFIG_DIR="$HOME/.github-follow-manager"
 ENV_FILE="$CONFIG_DIR/.env"
 GITHUB_API_URL="https://api.github.com"
 GITHUB_URL="https://github.com"
-MAX_ENTRIES=100
+MAX_ENTRIES=20
 
 get_current_username() {
     curl -s -u "anonymous:$GITHUB_TOKEN" "$GITHUB_API_URL/user" | jq -r '.login'
@@ -191,35 +191,72 @@ unfollow_non_followers() {
     echo "Unfollowed users who are not following you back."
 }
 
+paginate() {
+    local users=("$@")
+    local total=${#users[@]}
+    local pages=$(( (total + MAX_ENTRIES - 1) / MAX_ENTRIES ))
+
+    for ((page=0; page<pages; page++)); do
+        start=$((page * MAX_ENTRIES))
+        end=$((start + MAX_ENTRIES))
+        if [ $end -gt $total ]; then
+            end=$total
+        fi
+
+        echo "Page $((page + 1))/$pages:"
+        for ((i=start; i<end; i++)); do
+            user=${users[i]}
+            echo -e "\e]8;;$GITHUB_URL/$user\a$user\e]8;;\a"
+        done
+
+        if [ $page -lt $((pages - 1)) ]; then
+            read -p "Press Enter to continue to the next page..." -r
+        fi
+    done
+}
+
 list_followers() {
     echo "Followers:"
-    curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login'
+    followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
+    IFS=$'\n' read -rd '' -a followers_array <<<"$followers"
+    paginate "${followers_array[@]}"
 }
 
 list_following() {
     echo "Following:"
-    curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login'
+    following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
+    IFS=$'\n' read -rd '' -a following_array <<<"$following"
+    paginate "${following_array[@]}"
 }
 
 list_not_following_back() {
     echo "Users who are not following you back:"
     following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
     followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
-    for user in $following; do
-        if ! echo "$followers" | grep -q "$user"; then
-            echo -e "\e]8;;$GITHUB_URL/$user\a$user\e]8;;\a"
+    IFS=$'\n' read -rd '' -a following_array <<<"$following"
+    IFS=$'\n' read -rd '' -a followers_array <<<"$followers"
+    not_following_back=()
+    for user in "${following_array[@]}"; do
+        if ! echo "${followers_array[@]}" | grep -q "$user"; then
+            not_following_back+=("$user")
         fi
     done
+    paginate "${not_following_back[@]}"
 }
 
 list_not_followed_back() {
+    echo "Users you are not following back:"
     following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following" | jq -r '.[].login')
     followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers" | jq -r '.[].login')
-    for user in $followers; do
-        if ! echo "$following" | grep -q "$user"; then
-            echo -e "\e]8;;$GITHUB_URL/$user\a$user\e]8;;\a"
+    IFS=$'\n' read -rd '' -a following_array <<<"$following"
+    IFS=$'\n' read -rd '' -a followers_array <<<"$followers"
+    not_followed_back=()
+    for user in "${followers_array[@]}"; do
+        if ! echo "${following_array[@]}" | grep -q "$user"; then
+            not_followed_back+=("$user")
         fi
     done
+    paginate "${not_followed_back[@]}"
 }
 
 usage() {
