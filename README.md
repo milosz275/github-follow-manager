@@ -75,7 +75,6 @@ Arguments:
 - `list-followers`: List all users who are following you.
 - `list-following`: List all users you are following.
 - `list-not-following-back`: List all users who are not following you back.
-- `update-username`: Update your GitHub username in the script.
 
 ## Acknowledgements
 
