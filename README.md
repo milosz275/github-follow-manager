@@ -1,8 +1,9 @@
 # Github Follow Manager
 
 [![Deploy static content to Pages](https://github.com/milosz275/github-follow-manager/actions/workflows/deploy.yml/badge.svg)](https://github.com/milosz275/github-follow-manager/actions/workflows/deploy.yml)
+[![License](https://img.shields.io/github/license/milosz275/github-follow-manager)](/LICENSE)
 
-![Logo](assets/github-follow-manager.jpg)
+![Logo](assets/logo.png)
 
 This is a simple utility to help you manage your GitHub followers efficiently. With [Github Follow Manager](https://github.com/milosz275/github-follow-manager), you can easily follow back all your followers with a single command and unfollow users who aren't following you back. The script is written in shell scripting language and uses the GitHub API to interact with your followers and following list.
 
