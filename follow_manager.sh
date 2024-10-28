@@ -325,14 +325,59 @@ display_current_follower_count() { # displays the current follower count
 usage() { # displays usage information
     echo "Usage: $0 <command>"
     echo "Commands:"
-    echo "  follow <username>: Follow a user"
-    echo "  unfollow <username>: Unfollow a user"
-    echo "  follow-back: Follow back all followers"
-    echo "  unfollow-non-followers: Unfollow users who are not following you back"
-    echo "  list-followers: List all followers"
-    echo "  list-following: List all following users"
-    echo "  list-not-following-back: List users who are not following you back"
-    echo "  list-not-followed-back: List users who you are not following back"
+    echo -e "  \033[1mhelp\033[0m\t\t\t\tDisplay this help message"
+    echo -e "  \033[1mfollow <username>\033[0m\t\tFollow a user"
+    echo -e "  \033[1munfollow <username>\033[0m\t\tUnfollow a user"
+    echo -e "  \033[1mfollow-back\033[0m\t\t\tFollow back all followers"
+    echo -e "  \033[1munfollow-non-followers\033[0m\tUnfollow users who are not following you back"
+    echo -e "  \033[1mlist-followers\033[0m\t\tList all followers"
+    echo -e "  \033[1mlist-following\033[0m\t\tList all following users"
+    echo -e "  \033[1mlist-not-following-back\033[0m\tList users who are not following you back"
+    echo -e "  \033[1mlist-not-followed-back\033[0m\tList users who you are not following back"
+}
+
+menu_help() {
+    case "$1" in
+        help)
+            echo "Usage: $0 help <command>"
+            echo "Display help message for a specific command."
+            ;;
+        follow)
+            echo "Usage: $0 follow <username>"
+            echo "Follow a user by providing their username."
+            ;;
+        unfollow)
+            echo "Usage: $0 unfollow <username>"
+            echo "Unfollow a user by providing their username."
+            ;;
+        follow-back)
+            echo "Usage: $0 follow-back [-y]"
+            echo "Follow back all followers. Use -y flag to skip confirmation."
+            ;;
+        unfollow-non-followers)
+            echo "Usage: $0 unfollow-non-followers [-y]"
+            echo "Unfollow users who are not following you back. Use -y flag to skip confirmation."
+            ;;
+        list-followers)
+            echo "Usage: $0 list-followers"
+            echo "List all followers."
+            ;;
+        list-following)
+            echo "Usage: $0 list-following"
+            echo "List all following users."
+            ;;
+        list-not-following-back)
+            echo "Usage: $0 list-not-following-back"
+            echo "List users who are not following you back."
+            ;;
+        list-not-followed-back)
+            echo "Usage: $0 list-not-followed-back"
+            echo "List users who you are not following back."
+            ;;
+        *)
+            usage
+            ;;
+    esac
 }
 
 display_menu() { # displays the main menu
@@ -390,6 +435,9 @@ if [ $# -eq 0 ]; then
 fi
 
 case "$1" in
+    help)
+        menu_help "${@:2}"
+        ;;
     follow)
         menu_follow "${@:2}"
         ;;
