@@ -234,9 +234,6 @@ menu_unfollow_non_followers() { # asks for confirmation before unfollowing users
 }
 
 paginate() { # takes an array of users and paginates them
-    if [ "$#" -eq 0 ]; then
-        echo "Invalid usage of arguments in paginate function."
-    fi
     local users=("$@")
     local total=${#users[@]}
     local pages=$(( (total + PAGINATION - 1) / PAGINATION ))
@@ -261,9 +258,6 @@ paginate() { # takes an array of users and paginates them
 }
 
 menu_list_followers() { # lists all followers and paginates them
-    if [ "$#" -eq 0 ]; then
-        echo "Invalid usage of arguments in list_followers function."
-    fi
     echo "Followers:"
     followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     IFS=$'\n' read -rd '' -a followers_array <<<"$followers"
@@ -271,9 +265,6 @@ menu_list_followers() { # lists all followers and paginates them
 }
 
 menu_list_following() { # lists all following users and paginates them
-    if [ "$#" -eq 0 ]; then
-        echo "Invalid usage of arguments in list_following function."
-    fi
     echo "Following:"
     following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     IFS=$'\n' read -rd '' -a following_array <<<"$following"
@@ -281,9 +272,6 @@ menu_list_following() { # lists all following users and paginates them
 }
 
 menu_list_not_following_back() { # lists users who are not following back and paginates them
-    if [ "$#" -eq 0 ]; then
-        echo "Invalid usage of arguments in list_not_following_back function."
-    fi
     echo "Users who are not following you back:"
     following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
@@ -299,9 +287,6 @@ menu_list_not_following_back() { # lists users who are not following back and pa
 }
 
 menu_list_not_followed_back() { # lists users who you are not following back and paginates them
-    if [ "$#" -eq 0 ]; then
-        echo "Invalid usage of arguments in list_not_followed_back function."
-    fi
     echo "Users you are not following back:"
     following=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/following?per_page=$MAX_ENTRIES" | jq -r '.[].login')
     followers=$(curl -s -u "$GITHUB_USER:$GITHUB_TOKEN" "$GITHUB_API_URL/users/$GITHUB_USER/followers?per_page=$MAX_ENTRIES" | jq -r '.[].login')
