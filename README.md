@@ -70,6 +70,7 @@ github-follow-manager [argument]
 
 Arguments:
 
+- `help`: Display the help message with a list of available arguments.
 - `follow`: Follow a user by providing their username.
 - `unfollow`: Unfollow a user by providing their username.
 - `follow-back`: Follow back all users who are following you.
