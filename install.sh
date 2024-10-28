@@ -5,7 +5,6 @@ set -e
 INSTALL_DIR="/usr/local/bin"
 SCRIPT_NAME="follow_manager.sh"
 UTILITY_NAME="github-follow-manager"
-CONFIG_DIR="$HOME/.github-follow-manager"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root or with sudo"

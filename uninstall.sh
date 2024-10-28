@@ -9,7 +9,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 if [[ "$1" != "-y" ]]; then
-    echo "Are you sure you want to uninstall $UTILITY_NAME? (y/n)"
+    echo "Are you sure you want to uninstall $UTILITY_NAME? [y/n]"
     read -r confirm
     if [ "$confirm" != "y" ]; then
         echo "Uninstallation aborted."
