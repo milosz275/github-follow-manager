@@ -48,7 +48,7 @@ fi
 if [ ! -f "$ENV_FILE" ]; then
     echo ".env file not found! Creating one..."
     mkdir -p "$CONFIG_DIR"
-    read -sp "Enter your GitHub token: " GITHUB_TOKEN
+    read -sp "Enter your GitHub token (permissions required: read:user, user:follow): " GITHUB_TOKEN
     echo
     GITHUB_USER=$(get_current_username)
     if [ -z "$GITHUB_USER" ]; then
